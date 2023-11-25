@@ -12,6 +12,8 @@ NUMCOLS = 30
 NUMROWS = 20
 FOOD_COUNT = 4
 clock = pygame.time.Clock()
+my_font = pygame.font.SysFont('Courier New', 20)
+game_over_text = ""
 # Set up the game window
 window_width = NUMCOLS * (GRID_RADIUS * 2)  # NUM COLS/ROWS next to each other
 window_height = NUMROWS * (GRID_RADIUS * 2)
@@ -67,20 +69,32 @@ class Food:
             0, (window_height - GRID_RADIUS) // (GRID_RADIUS * 2)) * (GRID_RADIUS * 2) + GRID_RADIUS
     def draw(self):
         pygame.draw.circle(window, RED, (self.x, self.y), GRID_RADIUS)
-# Initialize the snake1 and food
-snake1 = Snake(GREEN, "RIGHT")
-snake2 = Snake(BLUE, "LEFT")
-food_list = []
-for n in range(FOOD_COUNT):
-    food_list.append(Food())
+
+def initialiseGame():
+    # Initialize the snake1 and food
+    init_food_list = []
+    for n in range(FOOD_COUNT):
+        init_food_list.append(Food())
+    return Snake(GREEN, "RIGHT"), Snake(BLUE, "LEFT"), init_food_list
+
+snake1, snake2, food_list = initialiseGame()
+
 # Game loop
 running = True
+game_over = False
 while running:
     # Handle events
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
         elif event.type == pygame.KEYDOWN:
+            # Game over logic
+            if game_over:
+                if event.key == pygame.K_r:
+                    game_over = False
+                    snake1, snake2, food_list = initialiseGame()
+                elif event.key == pygame.K_q:
+                    running = False
             # Snake 1
             if event.key == pygame.K_UP and snake1.direction != "DOWN":
                 snake1.direction = "UP"
@@ -99,44 +113,64 @@ while running:
                 snake2.direction = "LEFT"
             elif event.key == pygame.K_d and snake2.direction != "LEFT":
                 snake2.direction = "RIGHT"
-    # Move the snakes
-    snake1.move()
-    snake2.move()
-    # Check collision with food
-    for food in food_list:
-        if snake1.x == food.x and snake1.y == food.y:
-            snake1.length += 1
-            food_list.remove(food)  # Remove the food from the list
-            food_list.append(Food())  # Add a new food to the list at a new location
-        if snake2.x == food.x and snake2.y == food.y:
-            snake2.length += 1
-            food_list.remove(food)  # Remove the food from the list
-            food_list.append(Food())  # Add a new food to the list at a new location
-    # Update the snake1's body
-    snake1.body.insert(0, (snake1.x, snake1.y))
-    # Update the snake2's body
-    snake2.body.insert(0, (snake2.x, snake2.y))
-    if len(snake1.body) > snake1.length:
-        snake1.body.pop()
-    if len(snake2.body) > snake2.length:
-        snake2.body.pop()
-    # Check collision with snake1's body or boundaries
-    if snake1.check_collision(snake2):
-        running = False
-        print("Snake 2/blue has won")
-    if snake2.check_collision(snake1):
-        running = False
-        print("Snake 1/green has won")
-    if (snake1.x, snake1.y) == (snake2.x, snake2.y):
-        running = False
-        print("Nobody has won (frontal collision)")
-    # Clear the window
-    window.fill(BLACK)
-    # Draw the snakes and food
-    snake1.draw()
-    snake2.draw()
-    for food in food_list:
-        food.draw()
+    if not game_over:
+        # Move the snakes
+        snake1.move()
+        snake2.move()
+        # Check collision with food
+        for food in food_list:
+            if snake1.x == food.x and snake1.y == food.y:
+                snake1.length += 1
+                food_list.remove(food)  # Remove the food from the list
+                food_list.append(Food())  # Add a new food to the list at a new location
+            if snake2.x == food.x and snake2.y == food.y:
+                snake2.length += 1
+                food_list.remove(food)  # Remove the food from the list
+                food_list.append(Food())  # Add a new food to the list at a new location
+        # Update the snake1's body
+        snake1.body.insert(0, (snake1.x, snake1.y))
+        # Update the snake2's body
+        snake2.body.insert(0, (snake2.x, snake2.y))
+        if len(snake1.body) > snake1.length:
+            snake1.body.pop()
+        if len(snake2.body) > snake2.length:
+            snake2.body.pop()
+        # Check collision with snake1's body or boundaries
+        if snake1.check_collision(snake2):
+            game_over = True
+            game_over_text = "Blue is the winner!"
+        if snake2.check_collision(snake1):
+            game_over = True
+            game_over_text = "Green is the winner!"
+        if (snake1.x, snake1.y) == (snake2.x, snake2.y):
+            game_over = True
+            game_over_text = "Nobody won."
+        # Clear the window
+        window.fill(BLACK)
+        # Draw the snakes and food
+        snake1.draw()
+        snake2.draw()
+        for food in food_list:
+            food.draw()
+    else:  # Game over
+        window.fill(BLACK)
+        text_surface = my_font.render(game_over_text, False, WHITE)
+        text_rect = text_surface.get_rect(center=(window_width // 2, window_height // 2 - 60))  # Position the text
+        window.blit(text_surface, text_rect)  # Draw the text on the screen
+
+        text_surface = my_font.render(f"Score green: {snake1.length}", False, WHITE)
+        text_rect = text_surface.get_rect(center=(window_width // 2, window_height // 2 - 30))  # Position the text
+        window.blit(text_surface, text_rect)  # Draw the text on the screen
+
+        text_surface = my_font.render(f"Score blue: {snake2.length}", False, WHITE)
+        text_rect = text_surface.get_rect(center=(window_width // 2, window_height // 2))  # Position the text
+        window.blit(text_surface, text_rect)  # Draw the text on the screen
+
+        text_surface = my_font.render("q to quit, r to retry", False, WHITE)
+        text_rect = text_surface.get_rect(center=(window_width // 2, window_height // 2 + 30))  # Position the text
+        window.blit(text_surface, text_rect)  # Draw the text on the screen
+
+
     # Update the display
     pygame.display.update()
     # Set the game speed
