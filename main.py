@@ -12,7 +12,7 @@ NUMCOLS = 30
 NUMROWS = 20
 FOOD_COUNT = 4
 clock = pygame.time.Clock()
-my_font = pygame.font.SysFont('Courier New', 20)
+my_font = pygame.font.SysFont('Courier New', 30)
 game_over_text = ""
 # Set up the game window
 window_width = NUMCOLS * (GRID_RADIUS * 2)  # NUM COLS/ROWS next to each other
@@ -85,7 +85,7 @@ game_over = False
 while running:
     # Handle events
     for event in pygame.event.get():
-        if event.type == pygame.QUIT:
+        if event.type == pygame.QUIT:  # Red cross
             running = False
         elif event.type == pygame.KEYDOWN:
             # Game over logic
@@ -129,16 +129,18 @@ while running:
                 food_list.append(Food())  # Add a new food to the list at a new location
         # Update the snake1's body
         snake1.body.insert(0, (snake1.x, snake1.y))
-        # Update the snake2's body
-        snake2.body.insert(0, (snake2.x, snake2.y))
         if len(snake1.body) > snake1.length:
             snake1.body.pop()
+        # Update the snake2's body
+        snake2.body.insert(0, (snake2.x, snake2.y))
         if len(snake2.body) > snake2.length:
             snake2.body.pop()
-        # Check collision with snake1's body or boundaries
+
+        # Snake1 collisions
         if snake1.check_collision(snake2):
             game_over = True
             game_over_text = "Blue is the winner!"
+        # Snake2 collisions
         if snake2.check_collision(snake1):
             game_over = True
             game_over_text = "Green is the winner!"
@@ -169,7 +171,6 @@ while running:
         text_surface = my_font.render("q to quit, r to retry", False, WHITE)
         text_rect = text_surface.get_rect(center=(window_width // 2, window_height // 2 + 30))  # Position the text
         window.blit(text_surface, text_rect)  # Draw the text on the screen
-
 
     # Update the display
     pygame.display.update()
