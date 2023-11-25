@@ -10,6 +10,7 @@ GRID_RADIUS = 10
 FPS = 5
 NUMCOLS = 30
 NUMROWS = 20
+FOOD_COUNT = 4
 clock = pygame.time.Clock()
 # Set up the game window
 window_width = NUMCOLS * (GRID_RADIUS * 2)  # NUM COLS/ROWS next to each other
@@ -60,7 +61,9 @@ class Food:
         pygame.draw.circle(window, RED, (self.x, self.y), GRID_RADIUS)
 # Initialize the snake and food
 snake = Snake()
-food = Food()
+food_list = []
+for n in range(FOOD_COUNT):
+    food_list.append(Food())
 # Game loop
 running = True
 while running:
@@ -80,9 +83,11 @@ while running:
     # Move the snake
     snake.move()
     # Check collision with food
-    if snake.x == food.x and snake.y == food.y:
-        snake.length += 1
-        food = Food()
+    for food in food_list:
+        if snake.x == food.x and snake.y == food.y:
+            snake.length += 1
+            food_list.remove(food)  # Remove the food from the list
+            food_list.append(Food())  # Add a new food to the list at a new location
     # Update the snake's body
     snake.body.insert(0, (snake.x, snake.y))
     if len(snake.body) > snake.length:
@@ -94,7 +99,8 @@ while running:
     window.fill(BLACK)
     # Draw the snake and food
     snake.draw()
-    food.draw()
+    for food in food_list:
+        food.draw()
     # Update the display
     pygame.display.update()
     # Set the game speed
