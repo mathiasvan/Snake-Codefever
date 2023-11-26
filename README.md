@@ -25,7 +25,7 @@ pip install pyinstaller
 
 ## Compile .exe file
 
-Run this command to compile the `.exe` file.
+Run this command in the terminal in the directory with the `main.py` file to compile the `.exe` file.
 
 ```powershell
 pyinstaller --onefile --noconsole main.py
