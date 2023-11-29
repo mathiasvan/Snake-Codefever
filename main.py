@@ -3,6 +3,7 @@ Greedy Snake Game
 '''
 import random
 import pygame
+
 # Initialize the game
 pygame.init()
 # Define game variables
@@ -25,15 +26,18 @@ WHITE = (255, 255, 255)
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
+
+
 # Define the Snake class
 class Snake:
     def __init__(self, colour, start_direction):
-        self.x = GRID_RADIUS * 2 * (NUMCOLS/2) + GRID_RADIUS  # The snake1 must be on the grid
-        self.y = GRID_RADIUS * 2 * (NUMROWS/2) + GRID_RADIUS
+        self.x = GRID_RADIUS * 2 * (NUMCOLS / 2) + GRID_RADIUS  # The snake1 must be on the grid
+        self.y = GRID_RADIUS * 2 * (NUMROWS / 2) + GRID_RADIUS
         self.direction = start_direction
         self.length = 1
         self.body = []
         self.colour = colour
+
     def move(self):
         if self.direction == "UP":
             self.y -= GRID_RADIUS * 2
@@ -43,9 +47,11 @@ class Snake:
             self.x -= GRID_RADIUS * 2
         elif self.direction == "RIGHT":
             self.x += GRID_RADIUS * 2
+
     def draw(self):
         for part in self.body:
             pygame.draw.circle(window, self.colour, (part[0], part[1]), GRID_RADIUS)
+
     def check_collision(self, other_snake):
         # Collision with border
         if self.x < 0 or self.x >= window_width or self.y < 0 or self.y >= window_height:
@@ -59,16 +65,18 @@ class Snake:
             if self.x == part[0] and self.y == part[1]:
                 return True
         return False
+
+
 # Define the Food class
 class Food:
     def __init__(self):
         # Random position in the grid
-        self.x = random.randint(
-            0, (window_width - GRID_RADIUS) // (GRID_RADIUS * 2)) * (GRID_RADIUS * 2) + GRID_RADIUS
-        self.y = random.randint(
-            0, (window_height - GRID_RADIUS) // (GRID_RADIUS * 2)) * (GRID_RADIUS * 2) + GRID_RADIUS
+        self.x = random.randint(0, NUMCOLS - 1) * GRID_RADIUS * 2 + GRID_RADIUS
+        self.y = random.randint(0, NUMROWS - 1) * GRID_RADIUS * 2 + GRID_RADIUS
+
     def draw(self):
         pygame.draw.circle(window, RED, (self.x, self.y), GRID_RADIUS)
+
 
 def initialiseGame():
     # Initialize the snake1 and food
@@ -76,6 +84,7 @@ def initialiseGame():
     for n in range(FOOD_COUNT):
         init_food_list.append(Food())
     return Snake(GREEN, "RIGHT"), Snake(BLUE, "LEFT"), init_food_list
+
 
 snake1, snake2, food_list = initialiseGame()
 
